@@ -1,3 +1,6 @@
+Forked by mtse@google.com of the Firebase team to run correctly on CentOS with Berkshelf cookbook manager.
+----------------------------------------------------------------------------------------------------------
+
 google_auth_proxy Cookbook
 ==========================
 

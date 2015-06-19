@@ -74,25 +74,27 @@ action :run do
     )
   end
 
-  template "#{service_name}-upstart" do
-    path "/etc/init/google_auth_proxy_#{service_name}.conf"
-    source 'upstart.conf.erb'
+  template "#{service_name}-init" do
+    path "/etc/init.d/google_auth_proxy_#{service_name}"
+    source 'init.conf.erb'
     cookbook 'google_auth_proxy'
     owner 'root'
     group 'root'
-    mode 0644
+    mode 0777
     variables(
       user: new_resource.user,
       service_name: service_name
     )
+    action :create
   end
 
   service "google_auth_proxy_#{service_name}" do
-    provider Chef::Provider::Service::Upstart
-    action [:enable, :start]
-    supports status: true, restart: false, reload: false
+    provider Chef::Provider::Service::Init::Redhat
+    init_command "/etc/init.d/google_auth_proxy_#{service_name}"
+    action [:start]
+    supports status: true, restart: true, reload: false
     if node['google_auth_proxy']['auto_restart']
-      subscribes :restart, "template[#{service_name}-upstart]", :delayed
+      subscribes :restart, "template[#{service_name}-init]", :delayed
       subscribes :restart, "template[/etc/google_auth_proxy/#{service_name}.conf]", :delayed
     end
   end
